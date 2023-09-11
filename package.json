@@ -1,0 +1,11 @@
+{
+  "name": "nodegraph",
+  "version": "1.0.0",
+  "description": "A simple application to simulate graphs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \\\"Error: no test specified\\\" && exit 1"
+  },
+  "author": "Mixeal524",
+  "license": "ISC"
+}
