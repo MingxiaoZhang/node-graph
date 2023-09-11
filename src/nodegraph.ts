@@ -1,9 +1,22 @@
+import { Vertex, Edge } from '../types';
+import CSS from 'csstype';
+
 export default class NodeGraph {
-    constructor(container) {
+    container: HTMLElement;
+    nodes: Vertex[];
+    edges: Edge[];
+    draggingNode: Vertex | undefined;
+    newEdge?: {element: HTMLElement, startNode: Vertex};
+    initialMouseX: number;
+    initialMouseY: number;
+    initialNodeX: number;
+    initialNodeY: number;
+    
+    constructor(container: HTMLElement) {
         this.container = container;
         this.nodes = [];
         this.edges = [];
-        this.draggingNode = null;
+        this.draggingNode = undefined;
         this.initialMouseX = 0;
         this.initialMouseY = 0;
         this.initialNodeX = 0;
@@ -14,7 +27,7 @@ export default class NodeGraph {
         this.container.addEventListener("mouseup", this.handleMouseUp.bind(this));
     }
 
-    createNodeBase(x, y) {
+    createNodeBase(x: number, y: number) {
         const node = document.createElement("div");
         node.classList.add("node");
         node.setAttribute(
@@ -34,7 +47,7 @@ export default class NodeGraph {
         return nodeData;
     }
 
-    createNode(x, y, props) {
+    createNode(x: number, y: number, props?: {style: CSS.Properties, content: string}) {
         const node = this.createNodeBase(x, y);
         if (props === undefined) {
             return node;
@@ -48,7 +61,7 @@ export default class NodeGraph {
     }
 
 
-    createEdge(startNode, endNode) {
+    createEdge(startNode: Vertex, endNode: Vertex) {
         const edge = document.createElement("div");
         edge.classList.add("edge");
         edge.id = `edge${this.edges.length + 1}`;
@@ -60,19 +73,23 @@ export default class NodeGraph {
         this.updateEdges(startNode);
     }
 
-    handleNodeMouseEnter(event) {
-        const node = event.target;
+    handleNodeMouseEnter(event: Event) {
+        const node = event.target as HTMLElement;
         node.style.border = "3px solid";
     }
 
-    handleNodeMouseLeave(event) {
-        const node = event.target;
+    handleNodeMouseLeave(event: Event) {
+        const node = event.target as HTMLElement;
         node.style.border = "1px solid #000";
     }
 
-    handleMouseDown(event) {
-        if (event.target.closest(".node")) {
-            const node = this.nodes.find(nodeData => nodeData.id === event.target.closest(".node").id);
+    handleMouseDown(event: MouseEvent) {
+        const target = event.target as HTMLElement;
+        if (target.closest(".node")) {
+            const node = this.nodes.find(nodeData => nodeData.id === target.closest(".node")?.id);
+            if (!node) {
+                return;
+            }
             if (event.button === 0) {
                 this.draggingNode = node;
                 this.initialMouseX = event.clientX;
@@ -90,7 +107,7 @@ export default class NodeGraph {
         }
     }
 
-    handleMouseMove(event) {
+    handleMouseMove(event: MouseEvent) {
         if (this.draggingNode) {
             const deltaX = event.clientX - this.initialMouseX;
             const deltaY = event.clientY - this.initialMouseY;
@@ -105,26 +122,30 @@ export default class NodeGraph {
         }
     }
 
-    handleMouseUp(event) {
+    handleMouseUp(event: MouseEvent) {
         if (this.draggingNode) {
             this.draggingNode.element.style.zIndex = "2";
-            this.draggingNode = null;
+            this.draggingNode = undefined;
         }
         if (this.newEdge) {
             event.preventDefault();
-            if (event.target.closest(".node")) {
-                const node = this.nodes.find(nodeData => nodeData.id === event.target.closest(".node").id);
+            const target = event.target as HTMLElement;
+            if (target.closest(".node")) {
+                const node = this.nodes.find(nodeData => nodeData.id === target.closest(".node")?.id);
+                if (!node) {
+                    return;
+                }
                 this.createEdge(this.newEdge.startNode, node);
             }
             this.container.removeChild(this.newEdge.element);
-            this.newEdge = null;
+            this.newEdge = undefined;
         }
     }
 
-    updateEdges(node) {
+    updateEdges(node: Vertex) {
         for (const edge of node.edges) {
-            const startNode = document.querySelector(`.node#${edge.startNode}`);
-            const endNode = document.querySelector(`.node#${edge.endNode}`);
+            const startNode: HTMLElement = document.querySelector(`.node#${edge.startNode}`) as HTMLElement;
+            const endNode: HTMLElement = document.querySelector(`.node#${edge.endNode}`) as HTMLElement;
 
             const startX = parseInt(startNode.style.left, 10) + startNode.offsetWidth / 2;
             const startY = parseInt(startNode.style.top, 10) + startNode.offsetHeight / 2;
@@ -140,7 +161,7 @@ export default class NodeGraph {
         }
     }
 
-    updateNewEdge(mouseX, mouseY) {
+    updateNewEdge(mouseX: number, mouseY: number) {
         if (this.newEdge) {
             const startX = parseInt(this.newEdge.startNode.element.style.left, 10)
                 + this.newEdge.startNode.element.offsetWidth / 2;
@@ -161,10 +182,10 @@ export default class NodeGraph {
     }
 
     findOptimalNodePosition() {
-        const containerWidth = this.container.style.width;
-        const containerHeight = this.container.style.height;
-        const containerLeft = this.container.style.left;
-        const containerTop = this.container.style.top;
+        const containerWidth = parseInt(this.container.style.width, 10);
+        const containerHeight =  parseInt(this.container.style.height, 10);
+        const containerLeft =  parseInt(this.container.style.left, 10);
+        const containerTop =  parseInt(this.container.style.top, 10);
 
         const nodes = this.nodes;
 

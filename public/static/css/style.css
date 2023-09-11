@@ -1,0 +1,19 @@
+.nodeDefault {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-color: #ccc;
+    border: 1px solid #000;
+    border-radius: 50%;
+    cursor: move;
+    z-index: 2;
+  }
+  .node:hover {
+    border: 3px solid;
+  }
+  .edge {
+    position: absolute;
+    background-color: #000;
+    height: 2px;
+    z-index: 1;
+  }

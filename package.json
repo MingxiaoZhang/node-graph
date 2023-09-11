@@ -4,8 +4,16 @@
   "description": "A simple application to simulate graphs",
   "main": "index.js",
   "scripts": {
+    "start": "webpack --watch",
+    "build": "webpack",
     "test": "echo \\\"Error: no test specified\\\" && exit 1"
   },
   "author": "Mixeal524",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.2.2",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  }
 }
